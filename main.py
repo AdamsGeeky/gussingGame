@@ -1,41 +1,76 @@
+# Import the 'random' library for generating random numbers
 import random
+import time
+# Import the 'pygame' library for game development and multimedia applications
 import pygame
 
-# Initialize pygame
+# Initialize the pygame library
 pygame.init()
 
-# Load sound files
+# Load sound files using pygame's mixer module
+# 'pygame.mixer.Sound' is used to load and manage sound effects and music in the game.
+
+# Load the 'correct' sound effect
 correct_sound = pygame.mixer.Sound("./sounds/correct.wav")
+
+# Load the 'incorrect' sound effect
 incorrect_sound = pygame.mixer.Sound("./sounds/incorrect.wav")
+
+# Load the background music
 background_music = pygame.mixer.Sound("./sounds/background_music.wav")
 
-# Function to play correct guess sound
+# Function to play the correct guess sound
+# This function plays the 'correct' sound effect when the player guesses the correct number.
+
 def play_correct_sound():
     correct_sound.play()
 
-# Function to play incorrect guess sound
+# Function to play the incorrect guess sound
+# This function plays the 'incorrect' sound effect when the player's guess is incorrect.
+
 def play_incorrect_sound():
     incorrect_sound.play()
 
 # ANSI escape codes for color
-RED = '\033[91m'
-GREEN = '\033[92m'
-YELLOW = '\033[93m'
-END_COLOR = '\033[0m'
+# These ANSI escape codes are used to add colored text to the console output.
+# They are used for providing colorful feedback to the player during the game.
 
-# Function with argument level to play the game
+RED = '\033[91m'  # Red color
+GREEN = '\033[92m'  # Green color
+YELLOW = '\033[93m'  # Yellow color
+END_COLOR = '\033[0m'  # Reset color
+
+# Function to start the game
+# This function handles the initial setup of the game, including level selection and game start.
+
+def start_game():
+    print("👋 Welcome to the Number Guessing Game!")
+
+    while True:
+        try:
+            # Prompt the player to choose a game level (1, 2, or 3)
+            level = int(input("Choose a level (1, 2, or 3): "))
+            
+            # Check if the chosen level is valid (1, 2, or 3)
+            if level not in [1, 2, 3]:
+                raise ValueError(f"{RED}❌ Invalid level. Please choose a level between 1 and 3.{END_COLOR}")
+            break
+        except ValueError as e:
+            print(e)
+
+    # Start the number guessing game with the chosen level
+    guess_the_number(level)
+"""
+Function to play the number guessing game
+This function is the main game logic where the player guesses the number.
+It also handles different game levels and provides feedback to the player.
+"""
 def guess_the_number(level):
-    if level == 1:
-        max_number = 10
-    elif level == 2:
-        max_number = 20
-    elif level == 3:
-        max_number = 30
-    else:
-        print(f"{RED}❌ Invalid level. Please choose a level between 1 and 3.{END_COLOR}")
-        return
+    # Calculate the maximum number based on the chosen level
+    max_number = level * 10
+
+    # Generate a random secret number between 1 and the calculated maximum
     secret_number = random.randint(1, max_number)
-    
     attempts = 0
 
     print(f"🎮 Welcome to Level {level} of the Number Guessing Game!")
@@ -44,8 +79,10 @@ def guess_the_number(level):
 
     while True:
         try:
+            # Prompt the player to enter their guess
             player_guess = int(input("🤷 Enter your guess: "))
         except ValueError:
+            # Handle invalid input (non-integer)
             print(f"{RED}❌ Invalid input. Please enter a valid number.{END_COLOR}")
             continue
 
@@ -62,28 +99,26 @@ def guess_the_number(level):
             print(f"{GREEN}🎉 Congratulations! You've guessed the number {secret_number} in {attempts} attempts!{END_COLOR}")
             background_music.stop()
             break
+
     if level == 3:
         print(f"{GREEN}🏆 Congratulations! You have completed all levels!")
+        play_correct_sound()
         print("📲 The next version of the game will be Android-based. Stay tuned!")
+        time.sleep(5)
     else:
         next_level = level + 1
-        play_next_level = input(f"Do you want to play Level {next_level}? (yes/no): ").lower()
-        if play_next_level == 'yes':
-            guess_the_number(next_level)
-        else:
-            background_music.play()
-            print("👋 Thanks for playing!")
+        while True:
+            play_next_level = input(f"Do you want to play Level {next_level}? (yes/no): ").lower()
 
-# Start the game by calling the guess_the_number function
-print("👋 Welcome to the Number Guessing Game!")
-background_music.play()    
-while True:
-    try:
-        level = int(input("Choose a level (1, 2, or 3): "))
-        if level not in [1, 2, 3]:
-            raise ValueError(f"{RED}❌ Invalid level. Please choose a level between 1 and 3.{END_COLOR}")
-        break
-    except ValueError as e:
-        print(e)
-guess_the_number(level)
+            if play_next_level == 'yes':
+                guess_the_number(next_level)
+                break  # Break the loop if 'yes' is entered
+            elif play_next_level == 'no':
+                background_music.play()
+                print("👋 Thanks for playing!")
+                break  # Break the loop if 'no' is entered
+            else:
+                print(f"{RED}❌ Invalid choice. Please enter{END_COLOR} {GREEN}'yes' or 'no' {END_COLOR}.")
 
+# Start the game by calling the start_game function
+start_game()
